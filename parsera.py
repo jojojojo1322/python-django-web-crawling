@@ -32,6 +32,33 @@ def main_Crawling(html) :
         price = tr.find('td',{'class':'category_rows_price'}).text
         img = tr.find('img')
         img_src = img.get('src')
+        ########상세페이지 크롤링########
+        href = tr.find('a')
+        href_link = href.get('href')
+        link = "https://www.timeticket.co.kr%s" %(href_link)
+
+        re = requests.get(link)
+        htm = BS(re.text, 'html.parser', from_encoding='utf-8')
+        
+        a_list = htm.select('#ajaxcontentarea')
+
+        for a in a_list :
+            detail_guide = a.find('div',{'class':'viewpage_text'}).text
+            # you = a.find('iframe')
+            # youtube = you.get('src')
+            dimg_list = a.find('div',{'class':'main_detail_img'}).find_all('img')
+            for dimg in dimg_list :
+                detail_src = dimg.get('src')
+                # print(dsrc)
+                temp_dict[str(id)] = {'detail_src':detail_src}
+        # print(hugi)
+        temp_dict[str(id)] = {'detail_guide':detail_guide}
+
+
+        ########상세페이지 크롤링########
+
+
+
         # print(img_src,area,title,sale,price) 
         # temp_list.append([img_src,area,title,sale,price])
         temp_dict[str(id)] = {'img_src':img_src, 'area':area, 'title':title,
@@ -54,16 +81,15 @@ def toJson(main_dict):
 main_list = []
 main_dict = []
 
-
 main_dict = main_Crawling(html)
-
+print(main_dict)
 
 # for item in main_dict :
 #      Crawling(item, main_dict[item]['img_src'],main_dict[item]['area'],main_dict[item]['title'],
 #         main_dict[item]['sale'],main_dict[item]['price']).save()
 for item in main_dict :
      Crawling(item, main_dict[item]['title'],main_dict[item]['area'],main_dict[item]['sale'],
-        main_dict[item]['price'],main_dict[item]['img_src']).save()
+        main_dict[item]['price'],main_dict[item]['img_src'],main_dict[item]['detail_guide'],main_dict[item]['detail_src']).save()
 
 
 
